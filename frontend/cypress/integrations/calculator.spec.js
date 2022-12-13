@@ -23,26 +23,18 @@ describe('Calculator', () => {
           .then((item) => item.last().click())
       )
 
-      cy.findByText(/paused/i).should('not.exist')
+      cy.findByText(/2/i).should('not.exist')
   
 
       cy.get('*[data-cy="card-menu"]').last().click({ force: true })
-      cy.findByRole('menuitem', { name: /edit automation/i }).click({
+      cy.findByRole('menuitem', { name: /+/i }).click({
         force: true,
       })
-      cy.get('[data-cy*="new-automation"]', { timeout: 10000 }).should(
-        'be.visible'
-      )
   
       // send
-      cy.findByRole('button', { name: /update automation/i })
+      cy.findByRole('button', { name: /-/i })
         .should('not.be.disabled')
         .click()
-  
-      // close modal
-      cy.get('[data-cy*="new-automation"]', { timeout: 15000 }).should(
-        'not.exist'
-      )
 
     })
   })
