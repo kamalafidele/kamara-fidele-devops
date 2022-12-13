@@ -1,15 +1,16 @@
 import { useState } from 'react';
+import axios from 'axios';
 
 const Calculator = () => {
-    const BACKEND_URL = 'http://localhost:4000/api/v1/';
+    const BACKEND_URL = 'http://localhost:4000/api/v1';
 
     const[ calc, setCalc] = useState("");
     const[ res, setRes ] = useState("");
   
     const operations = ['/', '*', '+','-,','.'];
   
-    const updateCalc= value =>{
-      if(operations.includes(value)&& calc === '' ||
+    const updateCalc = value =>{
+      if(operations.includes(value) && calc === '' ||
       operations.includes(value) && operations.includes(calc.slice(-1)
       )
       ){
@@ -22,20 +23,44 @@ const Calculator = () => {
       }
     }
   
-    const createDigits = ()=>{
+    const createDigits = () => {
       const digits = [];
-      for(let i = 1; i < 10; i++){
+      for(let i = 1; i < 10; i++) {
         digits.push(
           <button onClick = {() => updateCalc(i.toString())} key = {i} > {i} </button>
         )
       }
       return digits;
     }
-    const calculate = () => {
-      setCalc(eval(calc).toString());
+
+    const getRealData = (str) => {
+      let data = { operation: '', value1: '', value2: '' };
+
+      operations.map(operation => {
+        const splittedResult = str.split(operation);
+        if(splittedResult.length > 1) {
+          data.operation = operation;
+          data.value1 = parseInt(splittedResult[0]);
+          data.value2 = parseInt(splittedResult[1]);
+        }
+      })
+
+      return data;
+    } 
+
+    const calculate = async () => {
+      const request = getRealData(calc);
+
+      try {
+        const { data } = await axios.post(`${BACKEND_URL}/doMath/`, request);
+        setCalc(data.calcResponse);
+      } catch (e) {
+        console.log('error: ', e);
+      }
     }
+
     const deleteLast = () => {
-      if(calc == ''){
+      if(calc == '') {
         return;
       }
       const value = calc.slice(0,-1);
@@ -43,7 +68,7 @@ const Calculator = () => {
     }
     
   return (
-    <div className="calculator">
+    <div className="calc-div">
       <div className="display">
         {res ? <span>{res}</span> : ""} &nbsp;
         {calc || "0"}
